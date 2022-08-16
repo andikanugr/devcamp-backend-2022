@@ -11,5 +11,5 @@ func main() {
 		env = value
 	}
 	fmt.Println("Hello Tokopedia Devcamp 2022 participants!")
-	fmt.Printf("This message is run on %s environtment\n", env)
+	fmt.Printf("This message is run on %s environment\n", env)
 }
