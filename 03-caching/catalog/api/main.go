@@ -1,17 +1,16 @@
 package main
 
 import (
-	"github.com/andikanugr/devcamp-backend-2022/03-caching/catalog/handler"
-	"github.com/andikanugr/devcamp-backend-2022/03-caching/catalog/repository"
+	"log"
+
+	"github.com/andikanugr/devcamp-backend-2022/03-caching/catalog/api/routes"
+	"github.com/andikanugr/devcamp-backend-2022/03-caching/catalog/pkg/product"
 	"github.com/andikanugr/devcamp-backend-2022/03-caching/catalog/storage"
-	"github.com/andikanugr/devcamp-backend-2022/03-caching/catalog/usecase"
 	"github.com/gofiber/fiber/v2"
 	_ "github.com/lib/pq"
 )
 
 func main() {
-	app := fiber.New()
-
 	dbCfg := storage.DBConfig{
 		User:     "postgres",
 		Password: "postgres",
@@ -25,11 +24,15 @@ func main() {
 	redisCfg := storage.RedisConfig{Addr: "localhost:6379"}
 	redis := storage.NewRedisClient(redisCfg)
 
-	productRepo := repository.NewProductRepo(db, redis)
-	productUC := usecase.NewProductUsecase(productRepo)
-	productHandler := handler.NewProduct(productUC)
+	productRepo := product.NewProductRepo(db, redis)
+	productUsecase := product.NewProductUsecase(productRepo)
 
-	app.Get("/products", productHandler.GetProducts)
+	app := fiber.New()
+	app.Get("/", func(ctx *fiber.Ctx) error {
+		return ctx.Send([]byte("Hello"))
+	})
+	api := app.Group("/api")
+	routes.ProductRouter(api, productUsecase)
 
-	app.Listen(":3000")
+	log.Fatal(app.Listen(":3000"))
 }
