@@ -1,0 +1,2 @@
+### Get Product
+GET http://localhost:3000/products
