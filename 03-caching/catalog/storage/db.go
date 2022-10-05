@@ -1,11 +1,9 @@
 package storage
 
 import (
+	"database/sql"
 	"fmt"
 	"log"
-	"time"
-
-	"database/sql"
 )
 
 type DBDriver interface {
@@ -44,10 +42,6 @@ func NewDB(cfg DBConfig) *sql.DB {
 	if err := db.Ping(); err != nil {
 		log.Fatal("[Database] db is unreachable: " + address + ", err: " + err.Error())
 	}
-
-	db.SetMaxIdleConns(5)
-	db.SetMaxOpenConns(20)
-	db.SetConnMaxLifetime(60 * time.Minute)
 
 	return db
 }

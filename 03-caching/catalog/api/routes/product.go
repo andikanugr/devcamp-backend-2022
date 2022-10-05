@@ -8,4 +8,8 @@ import (
 
 func ProductRouter(app fiber.Router, usecase product.UsecaseItf) {
 	app.Get("/products", handler.GetProducts(usecase))
+	app.Get("/products/:id", handler.GetProductByID(usecase))
+	app.Post("/products", handler.CreateProduct(usecase))
+	app.Put("/products", handler.UpdateProduct(usecase))
+	app.Delete("/products/:id", handler.DeleteProduct(usecase))
 }

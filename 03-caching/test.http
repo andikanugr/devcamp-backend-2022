@@ -1,2 +1,29 @@
-### Get Product
-GET http://localhost:3000/products
+### Get Product Batch
+GET http://localhost:3000/api/products?page=2&page_size=5
+
+### Get Product by ID
+GET http://localhost:3000/api/products/1
+
+### Create Product
+POST http://localhost:3000/api/products
+Content-Type: application/json
+
+{
+    "name": "New Product D",
+    "description": "New Product D Description",
+    "price": 12000
+}
+
+### Update Product
+PUT http://localhost:3000/api/products
+Content-Type: application/json
+
+{
+    "id": 1,
+    "name": "Product 1 updated",
+    "description": "",
+    "price": 12000
+}
+
+### Delete Product
+DELETE http://localhost:3000/api/products/1

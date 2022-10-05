@@ -1,13 +1,11 @@
 package product
 
-import (
-	"github.com/andikanugr/devcamp-backend-2022/03-caching/catalog/pkg/entity"
-)
-
 type UsecaseItf interface {
-	GetProducts() ([]entity.Product, error)
-	GetProductByID(ID int64) (entity.Product, error)
-	CreateProduct(product entity.Product) (entity.Product, error)
+	GetProducts(page, pageSize int) ([]Product, error)
+	GetProductByID(ID int64) (Product, error)
+	CreateProduct(product Product) (Product, error)
+	UpdateProduct(product Product) (Product, error)
+	DeleteProduct(ID int64) error
 }
 
 type usecase struct {
@@ -20,14 +18,22 @@ func NewProductUsecase(productRepo RepoItf) UsecaseItf {
 	}
 }
 
-func (p *usecase) GetProducts() ([]entity.Product, error) {
-	return p.productRepo.GetProducts()
+func (p *usecase) GetProducts(page, pageSize int) ([]Product, error) {
+	return p.productRepo.GetProducts(page, pageSize)
 }
 
-func (p *usecase) GetProductByID(ID int64) (entity.Product, error) {
+func (p *usecase) GetProductByID(ID int64) (Product, error) {
 	return p.productRepo.GetProductByID(ID)
 }
 
-func (p *usecase) CreateProduct(product entity.Product) (entity.Product, error) {
+func (p *usecase) CreateProduct(product Product) (Product, error) {
 	return p.productRepo.CreateProduct(product)
+}
+
+func (p *usecase) UpdateProduct(product Product) (Product, error) {
+	return p.productRepo.UpdateProduct(product)
+}
+
+func (p *usecase) DeleteProduct(ID int64) error {
+	return p.productRepo.DeleteProduct(ID)
 }
