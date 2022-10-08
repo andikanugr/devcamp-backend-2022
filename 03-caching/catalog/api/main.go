@@ -21,8 +21,14 @@ func main() {
 	}
 	db := storage.NewDB(dbCfg)
 
+	redisCfg := storage.RedisConfig{
+		Addr: "localhost:6379",
+	}
+	redis := storage.NewRedisClient(redisCfg)
+
 	productRepo := product.NewProductRepo(db)
-	productUsecase := product.NewProductUsecase(productRepo)
+	productRepoWithCache := product.NewProductCache(productRepo, redis)
+	productUsecase := product.NewProductUsecase(productRepoWithCache)
 
 	app := fiber.New()
 	app.Get("/", func(ctx *fiber.Ctx) error {

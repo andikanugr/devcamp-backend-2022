@@ -1,8 +1,8 @@
 ### Get Product Batch
-GET http://localhost:3000/api/products?page=2&page_size=5
+GET http://localhost:3000/api/products?page=1&page_size=5
 
 ### Get Product by ID
-GET http://localhost:3000/api/products/1
+GET http://localhost:3000/api/products/2
 
 ### Create Product
 POST http://localhost:3000/api/products
