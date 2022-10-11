@@ -10,20 +10,73 @@ To run the whole project, you can use
 docker-compose up
 ```
 
-## Code Organization
+### Export metric
+```go
+// Prometheus endpoint
+router.Path("/prometheus").Handler(promhttp.Handler())
+```
 
-Code organization will be presented below. Please refer to each folder for a more detailed description.
+### Add prometheus metrics
+```go
+var totalRequests = prometheus.NewCounterVec(
+	prometheus.CounterOpts{
+		Name: "http_requests_total",
+		Help: "Number of get requests.",
+	},
+	[]string{"path"},
+)
+
+var responseStatus = prometheus.NewCounterVec(
+	prometheus.CounterOpts{
+		Name: "response_status",
+		Help: "Status of HTTP response",
+	},
+	[]string{"path", "status"},
+)
+
+var httpDuration = promauto.NewHistogramVec(prometheus.HistogramOpts{
+	Name: "http_response_time_seconds",
+	Help: "Duration of HTTP requests.",
+}, []string{"path"})
+
+
+prometheus.Register(totalRequests)
+prometheus.Register(responseStatus)
+prometheus.Register(httpDuration)
 
 ```
-devcamp-backend-2022
- ├── 00-docker-101              # Docker 101 Code
- ├── 01-golang-101              # Golang 101 Code
- ├── 02-server-and-database     # Database Code
- ├── 03-caching                 # Caching Code 
- ├── 04-monitoring              # Monitoring Code
- ├── 05-message-queue           # Message Queue Code
- ├── Dockerfile
- ├── go.mod
- ├── go.sum
- └── docker-compose.yml
+
+### Add metrics middleware
+```go
+// Middleware to collecting the metrics of the http request
+func prometheusMiddleware(next http.Handler) http.Handler {
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		route := mux.CurrentRoute(r)
+		path, _ := route.GetPathTemplate()
+
+		timer := prometheus.NewTimer(httpDuration.WithLabelValues(path))
+		rw := NewResponseWriter(w)
+		next.ServeHTTP(rw, r)
+
+		statusCode := rw.statusCode
+
+		responseStatus.WithLabelValues(path, strconv.Itoa(statusCode)).Inc()
+		totalRequests.WithLabelValues(path).Inc()
+
+		timer.ObserveDuration()
+	})
+}
+
+router.Use(prometheusMiddleware)
+```
+
+### Let's build dashboard
+Open http://localhost:3000 to access grafana dashboard.
+
+### Load Test
+Let's check that we can monitor our API.
+```bash
+echo "GET http://localhost:9000/" | vegeta attack -duration=5s | vegeta report
+echo "GET http://localhost:9000/user/1" | vegeta attack -duration=5s | vegeta report
+echo "GET http://localhost:9000/user/2" | vegeta attack -duration=5s | vegeta report
 ```
