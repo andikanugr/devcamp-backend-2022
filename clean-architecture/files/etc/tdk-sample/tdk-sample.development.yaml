@@ -1,0 +1,41 @@
+server:
+  http:
+    address: ":8000"
+  grpc:
+    address: ":8090"
+log:
+  level: info
+  error_path: ./log/error.log # classic logging, log not streamed
+  debug_path: ./log/debug.log # classic logging, log not streamed
+  caller: false
+
+database:
+  driver: "postgres"
+  master: "postgres://toped:toped@localhost:5656/toped?sslmode=disable"
+  follower: "postgres://toped:toped@localhost:5656/toped?sslmode=disable"
+  max_conns: 100
+  max_idle_conns: 10
+  max_retry: 1
+  #no_ping_on_open: true # if true, it won't check whether the DB server is up or not on initialization
+
+redis:
+  engine: "redigo"
+  max_active_conn: 100
+  max_idle_conn: 10
+  timeout: 100
+  address: 127.0.0.1:6379
+  #no_ping_on_create: true  # if true, it won't check whether the server is up or not on initialization
+
+nsq_publishers:
+  book:
+    nsqd_address: 127.0.0.1:4150
+
+nsq_consumers:
+  book_get:
+    lookupd_addresses:
+      - 127.0.0.1:4161
+    concurrency: 1
+  book_create:
+    lookupd_addresses:
+      - 127.0.0.1:4161
+    concurrency: 1
